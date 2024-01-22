@@ -1,0 +1,9 @@
+<script>
+    const hash = window.location.hash.substring(1);
+    const params = new URLSearchParams(hash);
+    const accessToken = params.get("access_token");
+    const expiresIn = params.get("expires_in");
+    localStorage.setItem('access_token', accessToken);
+    localStorage.setItem('expires_at', Date.now() + expiresIn * 1000);
+    window.location.href = "/";
+</script>
