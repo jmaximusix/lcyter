@@ -1,3 +1,4 @@
 /target
+/user_data
 tailwind-default.config.js
 .env

@@ -9,75 +9,243 @@
     <title>LCYTER</title>
 </head>
 
-<body class="bg-gray-900">
-    <div id="example" class="flex justify-center text-center">
-        <div class="md:w-3/5">
-            <h1 class="text-4xl text-white font-bold my-4">Welcome To LCYTER</h1>
-            <p class="text-2xl text-gray-300 mx-6 mt-10">Inspired by the <a class="text-blue-500 hover:text-blue-700"
-                    href="https://en.wikipedia.org/wiki/Least_common_multiple">LCM</a> in
-                math, the <strong class="font-extrabold text-white">Least Common YouTuber</strong> (LCYTER) is defined
-                as
-                the smallest YouTuber (by subscriber
-                count) two
-                people
-                have in common (i.e. are both subscribed to)</p>
-            <br>
-            <div class="flex justify-center">
-                <div v-if="hasValidToken()">
-                    <button class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-full mx-1"
-                        @click="getSubscriptions()">Fetch subscription data!</button>
+<body class="bg-gray-900 text-white">
+    <div v-scope class="flex justify-center text-center">
+        <div class="flex flex-col justify-between items-center md:w-3/5 min-h-screen pb-8">
+            <div class="flex flex-col items-center">
+                <h1 class="text-4xl font-bold my-6">Welcome To LCYTER</h1>
+                <p class="text-2xl text-gray-300 mx-6">Inspired by the <a class="text-blue-500 hover:text-blue-700"
+                        href="https://en.wikipedia.org/wiki/Least_common_multiple">LCM</a> in
+                    math, the <b class="font-extrabold">Least Common YouTuber</b> (LCYTER) is defined
+                    as
+                    the smallest YouTuber (by subscriber
+                    count) two
+                    people
+                    have in common (i.e. are both subscribed to)</p>
+                <div class="flex flex-wrap justify-center mt-4 mb-2">
+                    <div v-cloak v-if="hasValidToken()">
+                        <button class="bg-rose-600 hover:bg-rose-700 button" @click="getSubscriptions()">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                class="icon" viewBox="0 0 16 16">
+                                <path
+                                    d="M8.051 1.999h.089c.822.003 4.987.033 6.11.335a2.01 2.01 0 0 1 1.415 1.42c.101.38.172.883.22 1.402l.01.104.022.26.008.104c.065.914.073 1.77.074 1.957v.075c-.001.194-.01 1.108-.082 2.06l-.008.105-.009.104c-.05.572-.124 1.14-.235 1.558a2.01 2.01 0 0 1-1.415 1.42c-1.16.312-5.569.334-6.18.335h-.142c-.309 0-1.587-.006-2.927-.052l-.17-.006-.087-.004-.171-.007-.171-.007c-1.11-.049-2.167-.128-2.654-.26a2.01 2.01 0 0 1-1.415-1.419c-.111-.417-.185-.986-.235-1.558L.09 9.82l-.008-.104A31 31 0 0 1 0 7.68v-.123c.002-.215.01-.958.064-1.778l.007-.103.003-.052.008-.104.022-.26.01-.104c.048-.519.119-1.023.22-1.402a2.01 2.01 0 0 1 1.415-1.42c.487-.13 1.544-.21 2.654-.26l.17-.007.172-.006.086-.003.171-.007A100 100 0 0 1 7.858 2zM6.4 5.209v4.818l4.157-2.408z" />
+                            </svg>Fetch subscriptions</button>
+                    </div>
+                    <div v-cloak v-else>
+                        <button class="bg-blue-500 hover:bg-blue-700 button" @click="oauthSignIn()">Authenticate
+                            now!</button>
+                    </div>
+                    <div
+                        v-scope="Modal('#comparebutton', '#comparebody', '#identifier', null, '#comparesubmit', fetchComparison)">
+                    </div>
+                    <!-- <div v-if="Object.keys(my_subscriptions).length !== 0"> -->
+                    <div
+                        v-scope="Modal('#sharebutton', '#uploadbody','#identifier-generate', '#password','#uploadsubmit', uploadOrDelete)">
+                    </div>
+                    <div>
+                        <button class="bg-slate-500 hover:bg-slate-700 button" @click="localDownload()">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                                stroke="currentColor" class="icon">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m.75 12 3 3m0 0 3-3m-3 3v-6m-1.5-9H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+                            </svg>
+                            Download <b class="font-mono font-light">txt</b></button>
+                    </div>
                 </div>
-                <div v-else>
-                    <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full mx-1"
-                        @click="oauthSignIn()">Authenticate now!</button>
-                </div>
-                <!-- <div v-if="Object.keys(my_subscriptions).length !== 0"> -->
-                <div>
-                    <button class="bg-teal-500 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded-full mx-1"
-                        @click="toggleShareModal()">Share Hashes</button>
-                </div>
-            </div>
-            <div class="flex justify-center mt-10">
-                <!-- <div class="flex flex-wrap justify-center max-w-screen-2xl"> -->
-                <div class="flex-col max-w-screen-2xl">
-                    <div v-for="youtuber in my_subscriptions"
-                        class="bg-gray-800 hover:bg-gray-700 my-3 p-2 flex justify-between items-center rounded-3xl mx-2">
-                        <div class="flex items-center">
-                            <img :src="youtuber.thumbnail" class="rounded-full w-12" alt="Channel icon">
-                            <span class="font-bold text-xl text-white ml-4">{{ youtuber.name }}</span>
+                <div v-cloak class="w-fit">
+                    <div v-for="list in displayData()">
+                        <span>{{list.title}}</span>
+                        <div v-for="youtuber in list.yters" class="p-2 flex justify-between items-center rounded-3xl"
+                            :class="list.style">
+                            <div class="flex items-center">
+                                <img :src="youtuber.thumbnail" class="rounded-full w-12" alt="Channel icon">
+                                <span class="font-bold text-xl ml-4">{{ youtuber.name }}</span>
+                            </div>
+                            <span class="text-gray-200 mx-3">{{ displaySubs(youtuber) }}</span>
                         </div>
-                        <span class="text-gray-200 mx-3">{{ displaySubs(youtuber) }}</span>
                     </div>
                 </div>
             </div>
-        </div>
-        <div v-if="getModal()">
-            <div class="bg-black opacity-50 fixed inset-0" @click="toggleShareModal()"></div>
-            <div
-                class="bg-gray-800 rounded-2xl shadow-lg h-fit w-80 lg:w-1/3 fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white">
-                <h1 class="text-2xl font-bold my-4 text-teal-500">Share a hashed version of your subscriptions</h1>
-                <p class="text-left mx-4">You can choose to either save your hashes as a txt file and share them
-                    however you like or upload them to the server for convenient accessibility.<br>
-                    If you choose to upload them, everyone can access them using the identifier. It's up to you whether
-                    you want to use a randomized string that's hard to guess or a more memorable one.
-                    The password is for updating your hashes later on. If you forget it, you can't use the same
-                    identifier again.<br></p>
-                <p class="font-light text-sm text-left mx-4 mt-2"><strong class="underline">Note:
-                    </strong>The
-                    data you share is only a list of the hashed channel
-                    ids. For the simple scope of this
-                    project, this means you can only see the YouTube channels you have in common. However, the data
-                    isn't
-                    "encrypted" in a meaningful way that would prevent anyone from comparing it to a list of
-                    "guesses" and thereby checking if you subscribed to those channels.
-                </p>
-                <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full mx-1"
-                    @click="downloadtxt()">Download TXT</button>
-                <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full mx-1"
-                    @click="toggleModalSign()">Download TXT</button>
+            <div class="mt-4" v-scope="Modal('#deletebutton', '#deletebody','#identifier', '#password', '#deletesubmit',
+                            uploadOrDelete)">
+                <template id="deletebutton">
+                    <button class="bg-red-500 hover:bg-red-700 button">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                            stroke="currentColor" class="icon">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                        </svg>Delete Account or Data
+                </template>
+                <template id="deletebody">
+                    <h1 class="text-2xl font-bold mx-4 my-4 text-red-500">Delete your account or data
+                    </h1>
+                    <p class="text-left mx-6 mb-6">You can either delete only the data the server has stored about
+                        you
+                        or your entire account. When you only delete your data the identifier remains "taken" and
+                        protected by your password while deleting the account frees up the identifier again.
+                        <br><br><b class="font-extrabold">This
+                            action cannot be undone.</b>
+                    </p>
+                </template>
+                <template id="deletesubmit">
+                    <button class="bg-red-500 hover:bg-red-700 modalbutton" @click="deleteAccount()">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                            stroke="currentColor" class="icon">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                        </svg>Delete Account
+                    </button>
+                    <button class="bg-orange-500 hover:bg-orange-700 modalbutton" @click="deleteData()">Only
+                        delete
+                        data
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                            stroke="currentColor" class="icon">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M12 9.75 14.25 12m0 0 2.25 2.25M14.25 12l2.25-2.25M14.25 12 12 14.25m-2.58 4.92-6.374-6.375a1.125 1.125 0 0 1 0-1.59L9.42 4.83c.21-.211.497-.33.795-.33H19.5a2.25 2.25 0 0 1 2.25 2.25v10.5a2.25 2.25 0 0 1-2.25 2.25h-9.284c-.298 0-.585-.119-.795-.33Z" />
+                        </svg>
+                    </button>
+                </template>
             </div>
         </div>
     </div>
+    <template id="modal">
+        <slot v-scope="FillSlot(showbutton)" @click="toggleVis"></slot>
+        <div v-if="isVis">
+            <div class="bg-black opacity-60 fixed inset-0" @click="toggleVis"></div>
+            <div
+                class="bg-gray-800 rounded-2xl shadow-lg h-fit w-[23rem] lg:w-[33rem] pb-4 fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                <slot v-scope="FillSlot(body)"></slot>
+                <form @submit.prevent="handleSubmit()" class="mt-3 mx-6">
+                    <div class="flex flex-col items-center w-full">
+                        <slot v-scope="FillSlot(id)"></slot>
+                        <slot v-scope="FillSlot(password)"></slot>
+                    </div>
+                    <slot v-scope="FillSlot(actions)"></slot>
+                </form>
+            </div>
+        </div>
+    </template>
+
+    <template id="identifier">
+        <input id="name" class="bg-gray-700 rounded-lg pl-2 my-1 w-full lg:w-2/3" type="text"
+            placeholder="Custom Identifier" required pattern="[a-zA-Z0-9._\-]{3,32}"
+            title="Must be between 3 and 32 characters long and only contain letters, numbers, periods, underscores and dashes"
+            v-model="submit.queryParams.id">
+    </template>
+
+    <template id="identifier-generate">
+        <input id="name" class="bg-gray-700 rounded-lg pl-2 my-1 w-full lg:w-2/3" type="text"
+            placeholder="Custom Identifier" required pattern="[a-zA-Z0-9._\-]{3,32}"
+            title="Must be between 3 and 32 characters long and only contain letters, numbers, periods, underscores and dashes"
+            v-model="submit.queryParams.id">
+    </template>
+
+    <template id="password">
+        <input id="password" class="bg-gray-700 rounded-lg pl-2 mt-1 mb-2 w-full lg:w-2/3" type="password"
+            placeholder="Password" required minlength="3" v-model="submit.queryParams.password">
+    </template>
+
+    <template id="sharebutton">
+        <button class="bg-teal-500 hover:bg-teal-700 button">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                stroke="currentColor" class="icon">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M7.217 10.907a2.25 2.25 0 1 0 0 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186 9.566-5.314m-9.566 7.5 9.566 5.314m0 0a2.25 2.25 0 1 0 3.935 2.186 2.25 2.25 0 0 0-3.935-2.186Zm0-12.814a2.25 2.25 0 1 0 3.933-2.185 2.25 2.25 0 0 0-3.933 2.185Z" />
+            </svg>Share</button>
+    </template>
+    <template id="uploadbody">
+        <div v-scope="{more: false, toggleMore() {this.more = !this.more}}">
+            <h1 class="text-2xl font-bold mx-4 my-4 text-teal-500">Share a hashed version of your
+                subscriptions
+            </h1>
+            <ul class="text-left mx-6 list-disc">
+                <li>Choose a unique identifier and password</li>
+                <li>Share the identifier with your friends to find common YouTubers</li>
+                <div v-show="!more" class="text-sm font-light text-blue-500 hover:text-blue-700" @click="toggleMore()">
+                    Learn
+                    more</div>
+                <div v-show="more" class="text-sm font-light text-blue-500 hover:text-blue-700" @click="toggleMore()">
+                    Hide</div>
+                <li v-show="more" class="font-light text-sm">There's currently no way of changing
+                    your
+                    password.
+                </li>
+                <li v-show="more" class="font-light text-sm">Anyone with the identifier can access
+                    your
+                    hashed
+                    data. It's up to you whether you want to use a randomized string or a more
+                    memorable
+                    one.
+                </li>
+                <li v-show="more" class="font-light text-sm">The password is for updating your
+                    hashes
+                    later
+                    on
+                    or deleting your data. If you forget it, you can't use the same identifier.</li>
+                <li v-show="more" class="font-light text-sm"> If you don't want to upload your data
+                    to
+                    the
+                    server, consider
+                    dowloading it as a txt file instead.</li>
+            </ul>
+            <p v-show="more" class="font-light text-sm text-justify mx-6 mt-2"><strong class="underline">Note:
+                </strong>The data you share is only a list of the hashed channel ids. For the simple
+                scope of this project, this means you can only see the YouTube channels you have in
+                common. However, the data isn't "encrypted" in a meaningful way that would prevent
+                anyone from comparing it to a list of "guesses" and thereby checking if you
+                subscribed to those channels.
+            </p>
+        </div>
+    </template>
+    <template id="uploadsubmit">
+        <button class="bg-teal-500 hover:bg-teal-700 modalbutton" @click="uploadData()">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                stroke="currentColor" class="icon">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M12 16.5V9.75m0 0 3 3m-3-3-3 3M6.75 19.5a4.5 4.5 0 0 1-1.41-8.775 5.25 5.25 0 0 1 10.233-2.33 3 3 0 0 1 3.758 3.848A3.752 3.752 0 0 1 18 19.5H6.75Z" />
+            </svg>
+            Upload data</button>
+    </template>
+
+    <template id="comparebutton">
+        <button class="bg-sky-500 hover:bg-sky-700 button">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                stroke="currentColor" class="icon">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M7.5 21 3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
+            </svg>
+            Compare
+        </button>
+    </template>
+    <template id="comparebody">
+        <h1 class="text-2xl font-bold mx-4 my-4 text-sky-500">Compare to someone else
+        </h1>
+        <ul class="text-left mx-6 mb-2 list-disc">
+            <li>Enter someone else's identifier to compare your subscriptions
+                against theirs</li>
+            <li>If they didn't share their data to the server but sent you a <b class="font-light font-mono">txt</b>
+                file instead, you can select it from your
+                system.</li>
+        </ul>
+    </template>
+    <template id="comparesubmit">
+        <button class="bg-slate-400 hover:bg-slate-600 modalbutton" @click.prevent="localUpload()">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                stroke="currentColor" class="icon">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M3.75 9.776c.112-.017.227-.026.344-.026h15.812c.117 0 .232.009.344.026m-16.5 0a2.25 2.25 0 0 0-1.883 2.542l.857 6a2.25 2.25 0 0 0 2.227 1.932H19.05a2.25 2.25 0 0 0 2.227-1.932l.857-6a2.25 2.25 0 0 0-1.883-2.542m-16.5 0V6A2.25 2.25 0 0 1 6 3.75h3.879a1.5 1.5 0 0 1 1.06.44l2.122 2.12a1.5 1.5 0 0 0 1.06.44H18A2.25 2.25 0 0 1 20.25 9v.776" />
+            </svg>
+            Choose local file
+        </button>
+        <button class="bg-sky-500 hover:bg-sky-700 modalbutton">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                stroke="currentColor" class="icon">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M12 9.75v6.75m0 0-3-3m3 3 3-3m-8.25 6a4.5 4.5 0 0 1-1.41-8.775 5.25 5.25 0 0 1 10.233-2.33 3 3 0 0 1 3.758 3.848A3.752 3.752 0 0 1 18 19.5H6.75Z" />
+            </svg>
+            Request data
+        </button>
+    </template>
 </body>
 
 </html>

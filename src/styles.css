@@ -1,3 +1,31 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.button {
+    @apply text-white font-bold py-2 px-4 my-2 rounded-full mx-1;
+}
+
+.modalbutton {
+    @apply text-white font-bold py-1 px-4 my-2 mx-1 rounded-full;
+}
+
+.icon {
+    @apply w-5 h-5 pb-1 inline-block mr-1;
+}
+
+.normal {
+    @apply bg-gray-800 hover:bg-gray-700 my-3
+}
+
+.greyed-out {
+    @apply bg-gray-800 my-3 opacity-50
+}
+
+.lcyter {
+    @apply bg-amber-500 hover:bg-amber-300 my-7
+}
+
+[v-cloak] {
+    display: none
+}

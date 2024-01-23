@@ -1,9 +1,57 @@
 import { createApp } from 'https://unpkg.com/petite-vue?module';
 
 createApp({
+    request: {},
+    submit: {
+        queryParams: {
+            id: '',
+            password: '',
+        },
+        endpoint: '',
+        options: ''
+    },
 
-    shareModal: false,
-    my_subscriptions: {},
+    other: [],
+    my_subscriptions: [],
+
+    displayData() {
+        if (this.other.length === 0) {
+            if (this.my_subscriptions.length === 0) {
+                return [];
+            }
+            return [{
+                title: 'My Subscriptions',
+                style: 'normal',
+                yters: this.my_subscriptions
+            }];
+        }
+        let common = {
+            title: 'Common Subscriptions',
+            style: 'normal',
+            yters: []
+        };
+
+        let mineOnly = {
+            title: "Youtubers only you're subscribed to",
+            style: 'greyed-out',
+            yters: []
+        };
+        for (const yter of this.my_subscriptions) {
+            if (this.other.includes(yter.hash)) {
+                common.yters.push(yter)
+            } else {
+                mineOnly.yters.push(yter)
+            }
+        }
+        let lcyter = common.yters.reduce((min, current) => {
+            return (current.subs < min.subs) ? current : min;
+        });
+        return [{
+            title: 'Your Least Common Youtuber',
+            style: 'lcyter',
+            yters: [lcyter]
+        }, common, mineOnly];
+    },
 
     hasValidToken() {
         const token = localStorage.getItem('access_token');
@@ -36,20 +84,20 @@ createApp({
             url.searchParams.set('pageToken', nextPageToken);
             const response = await (await fetch(url)).json();
             nextPageToken = response.nextPageToken;
-            // nextPageToken = undefined;
             let yters_on_page = {}
             for (let item of response.items) {
-                const channel_id = item.snippet.resourceId.channelId;
+                const id = item.snippet.resourceId.channelId;
+                const hash = await sha256_digest(id);
                 const name = item.snippet.title;
                 const thumbnail = item.snippet.thumbnails.default.url;
-                yters_on_page[channel_id] = { name, thumbnail };
+                yters_on_page[id] = { name, thumbnail, id, hash };
             }
             stats_url.searchParams.set('id', Object.keys(yters_on_page).join(','));
             const stats = await (await fetch(stats_url)).json();
             for (let item of stats.items) {
                 const channel_id = item.id;
                 const sub_count = item.statistics.subscriberCount;
-                yters_on_page[channel_id].subs = sub_count;
+                yters_on_page[channel_id].subs = parseInt(sub_count);
             }
             youtubers = { ...youtubers, ...yters_on_page };
         }
@@ -76,24 +124,90 @@ createApp({
         form.submit();
     },
 
+    hashes() {
+        return this.my_subscriptions.map(yter => yter.hash).join('\n');
+    },
+
     displaySubs(yter) {
         return formatNumber(yter.subs);
     },
 
-    share() {
-        console.log("sharing....")
+    async uploadOrDelete() {
+        const url = new URL(this.submit.endpoint, window.location.origin);
+        url.searchParams.set('identifier', this.submit.queryParams.id);
+        url.searchParams.set('password', this.submit.queryParams.password);
+        const response = await fetch(url, this.submit.options);
+        console.log(response);
     },
 
-    getModal() {
-        return this.shareModal;
+    deleteData() {
+        this.submit.endpoint = '/delete';
+        this.submit.options = { method: 'PATCH' };
     },
 
-    toggleShareModal() {
-        console.log("toggling share modal to " + !this.shareModal);
-        this.shareModal = !this.shareModal;
+    uploadData() {
+        this.submit.endpoint = '/upload';
+        this.submit.options = {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain' },
+            body: this.hashes()
+        };
+    },
+
+    deleteAccount() {
+        this.submit.endpoint = '/delete';
+        this.submit.options = { method: 'DELETE' };
+    },
+
+    async fetchComparison() {
+        const url = new URL('/compare/' + this.submit.queryParams.id, window.location.origin);
+        const response = await (await fetch(url)).text();
+        this.other = response.split('\n');
+    },
+
+    localUpload() {
+        console.log('local upload');
+    },
+
+    localDownload() {
+        const data = this.hashes();
+        const blob = new Blob([data], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'my_lcyter_hashes.txt';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    },
+
+    Modal,
+    FillSlot
+
+}).mount();
+
+function Modal(showbutton, body, id, password, actions, handler) {
+    return {
+        $template: '#modal',
+        handleSubmit: handler,
+        isVis: false,
+        toggleVis() {
+            this.isVis = !this.isVis;
+        },
+        showbutton,
+        body,
+        id,
+        password,
+        actions
+
     }
+}
 
-}).mount("#example");
+function FillSlot(inner) {
+    return {
+        $template: inner
+    }
+}
 
 function formatNumber(num) {
     if (num >= 1000000) {
@@ -103,4 +217,12 @@ function formatNumber(num) {
     } else {
         return num.toString();
     }
+}
+
+async function sha256_digest(id) {
+    const msgUint8 = new TextEncoder().encode(id);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    return hashHex;
 }
