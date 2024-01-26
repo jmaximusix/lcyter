@@ -125,13 +125,19 @@ fn upload_route() -> BoxedFilter<(impl warp::Reply,)> {
                 println!("Valid body of length {}", hashes.line_count());
                 hashes.save_to_file(&id);
                 warp::reply::with_status(
-                    "<span class=\"text-green-500\">Success!</span>",
+                    warp::reply::json(&json!({
+                        "status" : "ok",
+                        "message" : "Upload successful!"
+                    })),
                     warp::http::StatusCode::OK,
                 )
             } else {
                 println!("Invalid body");
                 warp::reply::with_status(
-                    "<span class=\"text-red-500\">Bad request!</span>",
+                    warp::reply::json(&json!({
+                        "status" : "error",
+                        "message" : "Bad request!"
+                    })),
                     warp::http::StatusCode::BAD_REQUEST,
                 )
             }
@@ -148,14 +154,19 @@ fn delete_route() -> BoxedFilter<(impl warp::Reply,)> {
             println!("Deleting hashes of {}", id);
             let filename = format!("{USERS_PATH}hashes/{}.txt", id);
             let _ = std::fs::remove_file(filename);
+            let mut message = "Data deleted successfully!";
             if method == warp::http::Method::DELETE {
                 println!("Deleting account of {}", id);
+                message = "Account deleted successfully!";
                 let mut users = read_users().unwrap();
                 users.remove(&id);
                 save_users(&users).unwrap();
             }
             warp::reply::with_status(
-                "<span class=\"text-green-500\">Deleted!</span>",
+                warp::reply::json(&json!({
+                    "status" : "ok",
+                    "message" : message
+                })),
                 warp::http::StatusCode::OK,
             )
         })
@@ -171,7 +182,7 @@ fn compare_route() -> BoxedFilter<(impl warp::Reply,)> {
                 warp::reply::with_status(hashes, warp::http::StatusCode::OK)
             } else {
                 warp::reply::with_status(
-                    String::from("<span class=\"text-red-500\">User not found!</span>"),
+                    String::from("User not found!"),
                     warp::http::StatusCode::NOT_FOUND,
                 )
             }
@@ -199,13 +210,19 @@ async fn handle_rejection(err: warp::Rejection) -> Result<impl warp::reply::Repl
         message = "404 Unlucky";
     } else if let Some(InvalidAuth) = err.find() {
         code = StatusCode::UNAUTHORIZED;
-        message = "<span class=\"text-red-500\">User exists and password is wrong!</span>";
+        message = "Password is wrong - User exists already!";
     } else {
         eprintln!("Unhandled rejection: {:?}", err);
         code = StatusCode::INTERNAL_SERVER_ERROR;
         message = "Internal Server Error";
     }
-    Ok(warp::reply::with_status(message, code))
+    Ok(warp::reply::with_status(
+        warp::reply::json(&json!({
+            "status" : "error",
+            "message" : message
+        })),
+        code,
+    ))
 }
 
 fn read_users() -> Result<Users, Box<dyn std::error::Error>> {

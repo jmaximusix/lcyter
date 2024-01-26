@@ -26,7 +26,7 @@ createApp({
             title: 'Common Subscriptions',
             style: 'normal',
             yters: [],
-            ifEmpty: 'Do you really consider this person a friend? - Yikes!'
+            ifEmpty: 'You really consider this person a friend? - Yikes!'
         };
 
         let mineOnly = {
@@ -63,7 +63,7 @@ createApp({
         const token = localStorage.getItem('access_token');
         const expiration = localStorage.getItem('expires_at');
         // Check if token expires within the next minute
-        if (Date.now() + 60000 > expiration) {
+        if (expiration && (Date.now() + 60000 > expiration)) {
             console.log('Previously stored token has expired')
             localStorage.removeItem('access_token');
             localStorage.removeItem('expires_at');
@@ -173,7 +173,7 @@ createApp({
         this.submit.password = '';
         this.submit.identifier = '';
         const response = await fetch(url, this.submit.options);
-        console.log(response);
+        return response;
     },
 
     deleteData() {
@@ -235,13 +235,31 @@ createApp({
 
 }).mount();
 
-function Modal(showbutton, body, id, password, actions, handler) {
+function Modal(showbutton, body, id, password, actions, handler, el) {
     return {
         $template: '#modal',
-        handleSubmit: handler,
+        async handleSubmit() {
+            let result = await handler();
+            if (result !== undefined) {
+                const responseJson = await result.json();
+                this.response.message = responseJson.message;
+                this.response.success = (responseJson.status === "ok");
+                console.log(this.response);
+            } else {
+                this.toggleVis();
+            }
+        },
         isVis: false,
         toggleVis() {
+            if (this.isVis) {
+                this.response = {};
+            }
             this.isVis = !this.isVis;
+        },
+        response: {},
+        hasResponse() {
+            console.log(this.response);
+            return (Object.keys(this.response).length > 0)
         },
         showbutton,
         body,

@@ -48,11 +48,11 @@
                 </div>
                 <div v-cloak v-if="hasSubscriptionData()" class="flex flex-wrap justify-center">
                     <div
-                        v-scope="Modal('#comparebutton', '#comparebody', '#identifier', null, '#comparesubmit', fetchComparison)">
+                        v-scope="Modal('#comparebutton', '#comparebody', '#identifier', null, '#comparesubmit', fetchComparison, $el)">
                     </div>
                     <!-- <div v-if="Object.keys(my_subscriptions).length !== 0"> -->
                     <div
-                        v-scope="Modal('#sharebutton', '#uploadbody','#identifier-generate', '#password','#uploadsubmit', uploadOrDelete)">
+                        v-scope="Modal('#sharebutton', '#uploadbody','#identifier-generate', '#password','#uploadsubmit', uploadOrDelete, $el)">
                     </div>
                     <div>
                         <button class="bg-slate-500 hover:bg-slate-700 button" @click="localDownload()">
@@ -90,7 +90,7 @@
                 </div>
             </div>
             <div class="mt-4"
-                v-scope="Modal('#deletebutton', '#deletebody','#identifier', '#password', '#deletesubmit', uploadOrDelete)">
+                v-scope="Modal('#deletebutton', '#deletebody','#identifier', '#password', '#deletesubmit', uploadOrDelete, $el)">
             </div>
         </div>
     </div>
@@ -106,7 +106,27 @@
                         <slot v-scope="FillSlot(id)"></slot>
                         <slot v-scope="FillSlot(password)"></slot>
                     </div>
-                    <slot v-scope="FillSlot(actions)"></slot>
+                    <div v-if="hasResponse()" class="w-full flex flex-col items-center text-red-400 mt-3">
+                        <div v-if="response.success">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                                stroke="mediumspringgreen" class="w-16 h-16">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                            </svg>
+                        </div>
+                        <div v-else>
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                                stroke="lightcoral" class="w-16 h-16">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
+                            </svg>
+                        </div>
+                        <div :class="{'text-green-400': response.success}" class="font-bold mb-3">
+                            {{response.message}}</div>
+                    </div>
+                    <button v-if="hasResponse() && response.success" class="bg-gray-700 hover:bg-gray-500 modalbutton"
+                        @click="toggleVis">Done</button>
+                    <slot v-else v-scope="FillSlot(actions)"></slot>
                 </form>
             </div>
         </div>
@@ -127,7 +147,7 @@
                 v-model="submit.identifier">
             <button class="w-1/6 bg-gray-600 rounded-r-lg" title="Generate random identifier"
                 @click.prevent="randomIdentifier"><svg xmlns="http://www.w3.org/2000/svg" fill="none"
-                    viewBox="0 0 24 24" stroke-width="2.5" stroke="limegreen" class="icon ml-1">
+                    viewBox="0 0 24 24" stroke-width="2.5" stroke="mediumspringgreen" class="icon ml-1">
                     <path stroke-linecap="round" stroke-linejoin="round"
                         d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
                 </svg>
