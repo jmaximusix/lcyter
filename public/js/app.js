@@ -16,25 +16,26 @@ createApp({
 
     displayData() {
         if (this.other.length === 0) {
-            if (this.my_subscriptions.length === 0) {
-                return [];
-            }
             return [{
                 title: 'My Subscriptions',
                 style: 'normal',
-                yters: this.my_subscriptions
+                yters: this.my_subscriptions,
+                ifEmpty: 'Please click the "Fetch subscriptions" button'
             }];
         }
         let common = {
             title: 'Common Subscriptions',
             style: 'normal',
-            yters: []
+            yters: [],
+            ifEmpty: 'Do you really consider this person a friend? - Yikes!'
         };
 
         let mineOnly = {
-            title: "Youtubers only you're subscribed to",
+            title: "Youtubers only you are subscribed to",
             style: 'greyed-out',
-            yters: []
+            yters: [],
+            ifEmpty: 'Wow! You subscribed to EXACTLY the same people<br>... or you compared against yourself'
+
         };
         for (const yter of this.my_subscriptions) {
             if (this.other.includes(yter.hash)) {
@@ -43,13 +44,19 @@ createApp({
                 mineOnly.yters.push(yter)
             }
         }
-        let lcyter = common.yters.reduce((min, current) => {
-            return (current.subs < min.subs) ? current : min;
-        });
+        let lcyter = [];
+        if (common.yters.length > 0) {
+            lcyter = [common.yters.reduce((min, current) => {
+                return (current.subs < min.subs) ? current : min;
+            })];
+        }
+
         return [{
             title: 'Your Least Common Youtuber',
             style: 'lcyter',
-            yters: [lcyter]
+            hideCount: true,
+            yters: lcyter,
+            ifEmpty: common.ifEmpty
         }, common, mineOnly];
     },
 
@@ -126,7 +133,13 @@ createApp({
     },
 
     hashes() {
-        return this.my_subscriptions.map(yter => yter.hash).join('\n');
+        let array = this.my_subscriptions.map(yter => yter.hash);
+        // Fisher-Yates shuffle so the order reveals no information about the youtuber
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array.join('\n');
     },
 
     displaySubs(yter) {
@@ -166,8 +179,13 @@ createApp({
         this.other = response.split('\n');
     },
 
-    localUpload() {
-        console.log('local upload');
+    localUpload(evt) {
+        const file = evt.target.files[0];
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            this.other = e.target.result.split('\n');
+        }
+        reader.readAsText(file);
     },
 
     localDownload() {

@@ -15,14 +15,10 @@
             <div class="flex flex-col items-center">
                 <h1 class="text-4xl font-bold my-6">Welcome To LCYTER</h1>
                 <p class="text-2xl text-gray-300 mx-6">Inspired by the <a class="text-blue-500 hover:text-blue-700"
-                        href="https://en.wikipedia.org/wiki/Least_common_multiple">LCM</a> in
-                    math, the <b class="font-extrabold">Least Common YouTuber</b> (LCYTER) is defined
-                    as
-                    the smallest YouTuber (by subscriber
-                    count) two
-                    people
-                    have in common (i.e. are both subscribed to)</p>
-                <div class="flex flex-wrap justify-center mt-4 mb-2">
+                        href="https://en.wikipedia.org/wiki/Least_common_multiple">LCM</a> in math, the <b
+                        class="font-extrabold">Least Common YouTuber</b> (LCYTER) is defined as the smallest YouTuber
+                    (by subscriber count) two people have in common (i.e. are both subscribed to)</p>
+                <div class="flex flex-wrap justify-center mt-4">
                     <div v-cloak v-if="hasValidToken()">
                         <button class="bg-rose-600 hover:bg-rose-700 button" @click="getSubscriptions()">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
@@ -32,8 +28,13 @@
                             </svg>Fetch subscriptions</button>
                     </div>
                     <div v-cloak v-else>
-                        <button class="bg-blue-500 hover:bg-blue-700 button" @click="oauthSignIn()">Authenticate
-                            now!</button>
+                        <button class="bg-blue-500 hover:bg-blue-700 button" @click="oauthSignIn()">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                class="icon" viewBox="0 0 16 16">
+                                <path
+                                    d="M15.545 6.558a9.4 9.4 0 0 1 .139 1.626c0 2.434-.87 4.492-2.384 5.885h.002C11.978 15.292 10.158 16 8 16A8 8 0 1 1 8 0a7.7 7.7 0 0 1 5.352 2.082l-2.284 2.284A4.35 4.35 0 0 0 8 3.166c-2.087 0-3.86 1.408-4.492 3.304a4.8 4.8 0 0 0 0 3.063h.003c.635 1.893 2.405 3.301 4.492 3.301 1.078 0 2.004-.276 2.722-.764h-.003a3.7 3.7 0 0 0 1.599-2.431H8v-3.08z" />
+                            </svg>
+                            Sign in for API access</button>
                     </div>
                     <div
                         v-scope="Modal('#comparebutton', '#comparebody', '#identifier', null, '#comparesubmit', fetchComparison)">
@@ -54,66 +55,39 @@
                 </div>
                 <div v-cloak class="w-fit">
                     <div v-for="list in displayData()">
-                        <span>{{list.title}}</span>
-                        <div v-for="youtuber in list.yters" class="p-2 flex justify-between items-center rounded-3xl"
-                            :class="list.style">
+                        <div class="inline-flex items-center justify-center w-full mt-8 mb-3">
+                            <hr class="w-full bg-gray-600 mx-3 border-0 h-0.5 rounded">
+                            <div
+                                class="bg-gray-900 px-2 min-w-max absolute left-1/2 -translate-x-1/2 text-lg text-gray-300 font-bold">
+                                {{list.title}} <span v-if="!list.hideCount">({{list.yters.length}})</span>
+                            </div>
+                        </div>
+                        <div v-if="list.yters.length === 0" class="py-2 px-4 text-lg rounded-3xl greyed-out"
+                            v-html="list.ifEmpty">
+                        </div>
+
+                        <div v-for="youtuber in list.yters"
+                            class="p-2 mx-2 flex justify-between items-center rounded-3xl" :class="list.style">
                             <div class="flex items-center">
                                 <img :src="youtuber.thumbnail" class="rounded-full w-12" alt="Channel icon">
                                 <span class="font-bold text-xl ml-4">{{ youtuber.name }}</span>
                             </div>
-                            <span class="text-gray-200 mx-3">{{ displaySubs(youtuber) }}</span>
+                            <span class="text-gray-300 mx-3 min-w-fit">{{ displaySubs(youtuber) }}</span>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="mt-4" v-scope="Modal('#deletebutton', '#deletebody','#identifier', '#password', '#deletesubmit',
-                            uploadOrDelete)">
-                <template id="deletebutton">
-                    <button class="bg-red-500 hover:bg-red-700 button">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                            stroke="currentColor" class="icon">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
-                        </svg>Delete Account or Data
-                </template>
-                <template id="deletebody">
-                    <h1 class="text-2xl font-bold mx-4 my-4 text-red-500">Delete your account or data
-                    </h1>
-                    <p class="text-left mx-6 mb-6">You can either delete only the data the server has stored about
-                        you
-                        or your entire account. When you only delete your data the identifier remains "taken" and
-                        protected by your password while deleting the account frees up the identifier again.
-                        <br><br><b class="font-extrabold">This
-                            action cannot be undone.</b>
-                    </p>
-                </template>
-                <template id="deletesubmit">
-                    <button class="bg-red-500 hover:bg-red-700 modalbutton" @click="deleteAccount()">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                            stroke="currentColor" class="icon">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
-                        </svg>Delete Account
-                    </button>
-                    <button class="bg-orange-500 hover:bg-orange-700 modalbutton" @click="deleteData()">Only
-                        delete
-                        data
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                            stroke="currentColor" class="icon">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M12 9.75 14.25 12m0 0 2.25 2.25M14.25 12l2.25-2.25M14.25 12 12 14.25m-2.58 4.92-6.374-6.375a1.125 1.125 0 0 1 0-1.59L9.42 4.83c.21-.211.497-.33.795-.33H19.5a2.25 2.25 0 0 1 2.25 2.25v10.5a2.25 2.25 0 0 1-2.25 2.25h-9.284c-.298 0-.585-.119-.795-.33Z" />
-                        </svg>
-                    </button>
-                </template>
+            <div class="mt-4"
+                v-scope="Modal('#deletebutton', '#deletebody','#identifier', '#password', '#deletesubmit', uploadOrDelete)">
             </div>
         </div>
     </div>
     <template id="modal">
         <slot v-scope="FillSlot(showbutton)" @click="toggleVis"></slot>
         <div v-if="isVis">
-            <div class="bg-black opacity-60 fixed inset-0" @click="toggleVis"></div>
+            <div class="bg-black opacity-60 fixed inset-0 z-10" @click="toggleVis"></div>
             <div
-                class="bg-gray-800 rounded-2xl shadow-lg h-fit w-[23rem] lg:w-[33rem] pb-4 fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                class="bg-gray-800 rounded-2xl z-20 shadow-lg h-fit w-[23rem] lg:w-[33rem] pb-4 fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
                 <slot v-scope="FillSlot(body)"></slot>
                 <form @submit.prevent="handleSubmit()" class="mt-3 mx-6">
                     <div class="flex flex-col items-center w-full">
@@ -162,31 +136,18 @@
                 <li>Choose a unique identifier and password</li>
                 <li>Share the identifier with your friends to find common YouTubers</li>
                 <div v-show="!more" class="text-sm font-light text-blue-500 hover:text-blue-700" @click="toggleMore()">
-                    Learn
-                    more</div>
+                    Learn more</div>
                 <div v-show="more" class="text-sm font-light text-blue-500 hover:text-blue-700" @click="toggleMore()">
                     Hide</div>
-                <li v-show="more" class="font-light text-sm">There's currently no way of changing
-                    your
-                    password.
+                <li v-show="more" class="font-light text-sm">There's currently no way of changing your password.
                 </li>
-                <li v-show="more" class="font-light text-sm">Anyone with the identifier can access
-                    your
-                    hashed
-                    data. It's up to you whether you want to use a randomized string or a more
-                    memorable
-                    one.
+                <li v-show="more" class="font-light text-sm">Anyone with the identifier can access your hashed data.
+                    It's up to you whether you want to use a randomized string or a more memorable one.
                 </li>
-                <li v-show="more" class="font-light text-sm">The password is for updating your
-                    hashes
-                    later
-                    on
-                    or deleting your data. If you forget it, you can't use the same identifier.</li>
-                <li v-show="more" class="font-light text-sm"> If you don't want to upload your data
-                    to
-                    the
-                    server, consider
-                    dowloading it as a txt file instead.</li>
+                <li v-show="more" class="font-light text-sm">The password is for updating your hashes later on or
+                    deleting your data. If you forget it, you can't use the same identifier.</li>
+                <li v-show="more" class="font-light text-sm"> If you don't want to upload your data to the server,
+                    consider dowloading it as a txt file instead.</li>
             </ul>
             <p v-show="more" class="font-light text-sm text-justify mx-6 mt-2"><strong class="underline">Note:
                 </strong>The data you share is only a list of the hashed channel ids. For the simple
@@ -229,7 +190,7 @@
         </ul>
     </template>
     <template id="comparesubmit">
-        <button class="bg-slate-400 hover:bg-slate-600 modalbutton" @click.prevent="localUpload()">
+        <button class="bg-slate-400 hover:bg-slate-600 modalbutton" @click.prevent="$el.nextElementSibling.click()">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                 stroke="currentColor" class="icon">
                 <path stroke-linecap="round" stroke-linejoin="round"
@@ -237,6 +198,7 @@
             </svg>
             Choose local file
         </button>
+        <input type="file" accept=".txt" name="Select File" class="hidden" @change="localUpload">
         <button class="bg-sky-500 hover:bg-sky-700 modalbutton">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                 stroke="currentColor" class="icon">
@@ -246,6 +208,45 @@
             Request data
         </button>
     </template>
+
+    <template id="deletebutton">
+        <button class="bg-red-500 hover:bg-red-700 button">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                stroke="currentColor" class="icon">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                    d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+            </svg>Delete Account or Data
+    </template>
+    <template id="deletebody">
+        <h1 class="text-2xl font-bold mx-4 my-4 text-red-500">Delete your account or data
+        </h1>
+        <p class="text-left mx-6 mb-6">You can either delete only the data the server has stored about
+            you
+            or your entire account. When you only delete your data the identifier remains "taken" and
+            protected by your password while deleting the account frees up the identifier again.
+            <br><br><b class="font-extrabold">This
+                action cannot be undone.</b>
+        </p>
+    </template>
+    <template id="deletesubmit">
+        <button class="bg-red-500 hover:bg-red-700 modalbutton" @click="deleteAccount()">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                stroke="currentColor" class="icon">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                    d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+            </svg>Delete Account
+        </button>
+        <button class="bg-orange-500 hover:bg-orange-700 modalbutton" @click="deleteData()">Only
+            delete
+            data
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                stroke="currentColor" class="icon">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M12 9.75 14.25 12m0 0 2.25 2.25M14.25 12l2.25-2.25M14.25 12 12 14.25m-2.58 4.92-6.374-6.375a1.125 1.125 0 0 1 0-1.59L9.42 4.83c.21-.211.497-.33.795-.33H19.5a2.25 2.25 0 0 1 2.25 2.25v10.5a2.25 2.25 0 0 1-2.25 2.25h-9.284c-.298 0-.585-.119-.795-.33Z" />
+            </svg>
+        </button>
+    </template>
+
 </body>
 
 </html>

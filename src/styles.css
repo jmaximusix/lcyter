@@ -23,7 +23,7 @@
 }
 
 .lcyter {
-    @apply bg-amber-500 hover:bg-amber-300 my-7
+    @apply bg-amber-500 hover:bg-amber-300 my-5
 }
 
 [v-cloak] {
