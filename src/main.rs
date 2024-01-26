@@ -3,7 +3,6 @@ use serde_json::json;
 use std::convert::Infallible;
 use std::fmt::Display;
 use std::io::Read;
-use std::str::FromStr;
 use std::{collections::HashMap, fs::File};
 use warp::http::StatusCode;
 use warp::{filters::BoxedFilter, Filter};

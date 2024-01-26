@@ -65,6 +65,7 @@ createApp({
         }
         return token !== null;
     },
+
     async getSubscriptions() {
         const token = localStorage.getItem('access_token');
         let url = new URL('https://www.googleapis.com/youtube/v3/subscriptions');
