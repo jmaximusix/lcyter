@@ -15,6 +15,10 @@ This tool offers an easy way to find out all the channels you share without reve
 - Share a hashed list of your subscriptions with your friends. You can either upload it to the server or save them as a file and share them however you like. See [Privacy Statement](#privacy-statement) for more information on how your data is handled.
 - Compare your data to your friends and find out about your common YouTube channels and LCYTER
 
+##### Additional Features
+- You can `Ctrl + Click` on any Youtuber in the list to open their channel page in a new tab
+- You can generate a random identifier to use when uploading your data by clicking the button on the right
+
 ### Privacy statement
 
 - Honoring the principles of data minimalism, every effort has been made to ensure the collection of as little data as possible
@@ -22,4 +26,5 @@ This tool offers an easy way to find out all the channels you share without reve
 - Should you choose to share your results via the server *(which is optional)* you upload a shuffled list (so the order doesn't reveal any information) of the (SHA-256) hashes of the YouTube Channel-Ids.
 - Furthermore you can choose the identifier which is needed to access them. It's up to you whether you choose a randomly generated string of characters which can't be guessed or something more memorable. Anyone who knows your identifier can compare their hashes against yours.
 - This means, when comparing your subscriptions to someone else's you can only ever see the channels you have in common. Note however, that while it is generally not possible to reverse the hashing algorithm, one could still compare them against a list of "guesses" to check whether you are subscribed to certain channels.
+- You can delete all the data the server has stored about you at any point in time using the "Delete Account or Data button" on the bottom of the page.
 - All the code (client and server) is publicly available in this repository, so you can verify these claims for yourself \:-)
