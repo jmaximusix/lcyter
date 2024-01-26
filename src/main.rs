@@ -90,8 +90,14 @@ type Users = HashMap<Identifier, String>;
 #[tokio::main]
 async fn main() {
     dotenv::dotenv().ok();
+    std::fs::create_dir_all(format!("{USERS_PATH}hashes")).unwrap();
     let client_id = std::env::var("CLIENT_ID").expect("CLIENT_ID not set");
     let domain = std::env::var("DOMAIN").expect("DOMAIN not set");
+    let port = std::env::var("PORT")
+        .expect("PORT not set")
+        .as_str()
+        .parse()
+        .expect("Invalid PORT");
 
     let files = warp::fs::dir("public");
     let index = warp::path::end().and(warp::fs::file("public/index.html"));
@@ -110,7 +116,7 @@ async fn main() {
         .or(compare_route())
         .or(files)
         .recover(handle_rejection);
-    warp::serve(routes).run(([0, 0, 0, 0], 5500)).await;
+    warp::serve(routes).run(([0, 0, 0, 0], port)).await;
 }
 
 fn upload_route() -> BoxedFilter<(impl warp::Reply,)> {

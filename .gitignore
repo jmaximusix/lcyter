@@ -2,3 +2,4 @@
 /user_data
 tailwind-default.config.js
 .env
+docker-compose.yml

@@ -1,0 +1,24 @@
+services:
+  lcyter:
+    image: jmaximusix/lcyter
+    build: .
+    container_name: lcyter
+    env_file: .env
+    entrypoint: "lcyter"
+    environment:
+      - TZ=Europe/Berlin
+      - PORT=5500
+    networks:
+      - my_custom_network
+    ports:
+      - 5500:5500
+    volumes:
+      - user_data:/app/user_data
+    restart: unless-stopped
+
+volumes:
+  user_data:
+
+
+networks:
+  my_custom_network:
