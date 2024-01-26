@@ -3,10 +3,8 @@ import { createApp } from 'https://unpkg.com/petite-vue?module';
 createApp({
     request: {},
     submit: {
-        queryParams: {
-            id: '',
-            password: '',
-        },
+        identifier: '',
+        password: '',
         endpoint: '',
         options: ''
     },
@@ -15,12 +13,13 @@ createApp({
     my_subscriptions: [],
 
     displayData() {
+        const my_subs = this.getMySubscriptions();
         if (this.other.length === 0) {
             return [{
                 title: 'My Subscriptions',
                 style: 'normal',
-                yters: this.my_subscriptions,
-                ifEmpty: 'Please click the "Fetch subscriptions" button'
+                yters: my_subs,
+                ifEmpty: 'Sign in and fetch your subscriptions'
             }];
         }
         let common = {
@@ -37,7 +36,7 @@ createApp({
             ifEmpty: 'Wow! You subscribed to EXACTLY the same people<br>... or you compared against yourself'
 
         };
-        for (const yter of this.my_subscriptions) {
+        for (const yter of my_subs) {
             if (this.other.includes(yter.hash)) {
                 common.yters.push(yter)
             } else {
@@ -73,7 +72,11 @@ createApp({
         return token !== null;
     },
 
-    async getSubscriptions() {
+    hasSubscriptionData() {
+        return this.getMySubscriptions().length > 0;
+    },
+
+    async fetchSubscriptions() {
         const token = localStorage.getItem('access_token');
         let url = new URL('https://www.googleapis.com/youtube/v3/subscriptions');
         let stats_url = new URL('https://www.googleapis.com/youtube/v3/channels');
@@ -109,7 +112,7 @@ createApp({
             }
             youtubers = { ...youtubers, ...yters_on_page };
         }
-        this.my_subscriptions = Object.values(youtubers).sort((a, b) => b.subs - a.subs);
+        this.setMySubscriptions(Object.values(youtubers).sort((a, b) => b.subs - a.subs));
     },
 
     async oauthSignIn() {
@@ -132,8 +135,25 @@ createApp({
         form.submit();
     },
 
+    getMySubscriptions() {
+        if (this.my_subscriptions.length > 0) {
+            return this.my_subscriptions;
+        }
+        const stored = localStorage.getItem('my_subscriptions');
+        if (stored !== null) {
+            this.my_subscriptions = JSON.parse(stored);
+            return this.my_subscriptions;
+        }
+        return [];
+    },
+
+    setMySubscriptions(new_subscriptions) {
+        this.my_subscriptions = new_subscriptions;
+        localStorage.setItem('my_subscriptions', JSON.stringify(new_subscriptions));
+    },
+
     hashes() {
-        let array = this.my_subscriptions.map(yter => yter.hash);
+        let array = this.getMySubscriptions().map(yter => yter.hash);
         // Fisher-Yates shuffle so the order reveals no information about the youtuber
         for (let i = array.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
@@ -148,8 +168,10 @@ createApp({
 
     async uploadOrDelete() {
         const url = new URL(this.submit.endpoint, window.location.origin);
-        url.searchParams.set('identifier', this.submit.queryParams.id);
-        url.searchParams.set('password', this.submit.queryParams.password);
+        url.searchParams.set('identifier', this.submit.identifier);
+        url.searchParams.set('password', this.submit.password);
+        this.submit.password = '';
+        this.submit.identifier = '';
         const response = await fetch(url, this.submit.options);
         console.log(response);
     },
@@ -174,8 +196,9 @@ createApp({
     },
 
     async fetchComparison() {
-        const url = new URL('/compare/' + this.submit.queryParams.id, window.location.origin);
+        const url = new URL('/compare/' + this.submit.identifier, window.location.origin);
         const response = await (await fetch(url)).text();
+        this.submit.identifier = '';
         this.other = response.split('\n');
     },
 
@@ -198,6 +221,13 @@ createApp({
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
+    },
+    randomIdentifier() {
+        let chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        this.submit.identifier = '';
+        for (let i = 0; i < 24; i++) {
+            this.submit.identifier += chars[Math.floor(Math.random() * chars.length)];
+        }
     },
 
     Modal,
