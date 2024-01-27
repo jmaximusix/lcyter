@@ -172,7 +172,7 @@ createApp({
         url.searchParams.set('password', this.submit.password);
         this.submit.password = '';
         this.submit.identifier = '';
-        const response = await fetch(url, this.submit.options);
+        const response = await (await fetch(url, this.submit.options)).json();
         return response;
     },
 
@@ -196,10 +196,15 @@ createApp({
     },
 
     async fetchComparison() {
-        const url = new URL('/compare/' + this.submit.identifier, window.location.origin);
-        const response = await (await fetch(url)).text();
+        let name = this.submit.identifier;
         this.submit.identifier = '';
-        this.other = response.split('\n');
+        const url = new URL('/compare/' + name, window.location.origin);
+        const response = await fetch(url);
+        if (response.ok) {
+            this.other = (await response.text()).split('\n');
+            return { status: 'ok', message: 'Loaded comparison with user ' + name };
+        }
+        return { status: 'error', message: "Identifier doesn't exist or has no data submitted" };
     },
 
     localUpload(evt) {
@@ -210,6 +215,13 @@ createApp({
         }
         reader.readAsText(file);
     },
+
+    // localUp
+
+    // isLocalUpload: false
+    // compareOrUploadHandler() {
+
+    // }
 
     localDownload() {
         const data = this.hashes();
@@ -241,9 +253,8 @@ function Modal(showbutton, body, id, password, actions, handler, el) {
         async handleSubmit() {
             let result = await handler();
             if (result !== undefined) {
-                const responseJson = await result.json();
-                this.response.message = responseJson.message;
-                this.response.success = (responseJson.status === "ok");
+                this.response.message = result.message;
+                this.response.success = (result.status === "ok");
                 console.log(this.response);
             } else {
                 this.toggleVis();
